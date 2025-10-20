@@ -1,0 +1,18 @@
+body { font-family: Arial, sans-serif; margin: 0; background:#f4f6f9; color:#222; }
+header { background:#0b5fff; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { margin:0; font-size:20px; }
+nav a { color:#fff; margin-left:14px; text-decoration:none; }
+nav a.active { font-weight:bold; text-decoration:underline; }
+main { text-align:center; padding:40px; }
+footer { text-align:center; padding:12px; font-size:14px; color:#555; }
+.btn { background:#0b5fff; color:#fff; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; margin:10px; font-size:16px; }
+
+/* Modal */
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; }
+.modal { background:#fff; border-radius:8px; padding:20px; max-width:400px; width:90%; position:relative; }
+.modal h2 { margin-top:0; }
+.close { position:absolute; right:10px; top:10px; border:none; background:#eee; border-radius:50%; width:28px; height:28px; cursor:pointer; }
+.field { margin-bottom:12px; text-align:left; }
+.field label { font-weight:bold; display:block; margin-bottom:4px; }
+.field input, .field select { width:100%; padding:8px; border:1px solid #ccc; border-radius:6px; }
+.summary { background:#f9fbff; border:1px solid #dbeafe; padding:10px; border-radius:6px; margin-top:10px; font-size:14px; }

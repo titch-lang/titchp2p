@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoinBit P2P</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin:0; background:#f5f6fa; color:#222;}
+    header {background:#0b5fff; padding:12px; color:#fff; display:flex; justify-content:space-between; align-items:center;}
+    nav a {color:#fff; margin:0 10px; text-decoration:none; font-weight:bold;}
+    nav a:hover {text-decoration:underline;}
+    .section {display:none; padding:20px;}
+    .active {display:block;}
+    h1 {color:#0b5fff;}
+    .btn {background:#0b5fff; color:#fff; border:none; padding:10px 16px; margin:5px; border-radius:6px; cursor:pointer;}
+    .btn:hover {background:#0946c1;}
+    .card {background:#fff; padding:16px; border-radius:8px; margin:10px 0; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+    .field {margin:10px 0;}
+    label {font-weight:bold;}
+    input, select {width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:6px;}
+    .modal-backdrop {position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1000;}
+    .modal {background:#fff; padding:20px; border-radius:10px; width:95%; max-width:400px; position:relative;}
+    .close {position:absolute; right:10px; top:10px; border:none; background:#eee; padding:5px 10px; cursor:pointer; border-radius:6px;}
+    .summary {background:#f9f9f9; border:1px solid #ddd; padding:10px; border-radius:6px; margin-top:10px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>CoinBit P2P</strong></div>
+    <nav>
+      <a href="#" onclick="showSection('home')">Home</a>
+      <a href="#" onclick="showSection('offers')">Offers</a>
+      <a href="#" onclick="showSection('about')">About</a>
+      <a href="#" onclick="showSection('contact')">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Sections -->
+  <div id="home" class="section active">
+    <h1>Welcome to CoinBit P2P</h1>
+    <p>Fast and secure MPESA ↔ USD trades.</p>
+    <button class="btn" onclick="openBuy()">Buy USD</button>
+    <button class="btn" onclick="openSell()">Sell USD</button>
+  </div>
+
+  <div id="offers" class="section">
+    <h1>Offers</h1>
+    <div class="card">
+      <p>Competitive rates, instant confirmations, 24/7 support.</p>
+      <p>Promo: Reduced spread for $100+ trades. Referral rewards soon!</p>
+    </div>
+    <button class="btn" onclick="openBuy()">Buy USD</button>
+    <button class="btn" onclick="openSell()">Sell USD</button>
+  </div>
+
+  <div id="about" class="section">
+    <h1>About Us</h1>
+    <div class="card">
+      <p>CoinBit is a peer-to-peer exchange linking MPESA to major crypto exchanges. We provide smooth transactions with pre-written confirmations to keep trades fast and auditable. Big exchange integrations are coming soon!</p>
+    </div>
+  </div>
+
+  <div id="contact" class="section">
+    <h1>Contact Us</h1>
+    <div class="card">
+      <p>WhatsApp: <a href="https://wa.me/254106353244" target="_blank">0106353244</a></p>
+      <p>Email: <a href="mailto:coinbit@gmail.com">coinbit@gmail.com</a></p>
+    </div>
+  </div>
+
+  <!-- Buy Modal -->
+  <div id="buyModal" class="modal-backdrop">
+    <div class="modal">
+      <button class="close" onclick="closeBuy()">X</button>
+      <h2>Buy USD</h2>
+      <div class="field">
+        <label>Exchange</label>
+        <select id="buyExchange">
+          <option>Binance</option>
+          <option>OKX</option>
+          <option>Bybit</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Your Exchange UID</label>
+        <input type="text" id="buyUid" placeholder="Enter UID">
+      </div>
+      <div class="field">
+        <label>Amount in USD</label>
+        <input type="number" id="buyUsd" placeholder="Enter amount">
+      </div>
+      <div class="summary" id="buySummary" style="display:none;"></div>
+      <button class="btn" onclick="shareBuy()">Share on WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- Sell Modal -->
+  <div id="sellModal" class="modal-backdrop">
+    <div class="modal">
+      <button class="close" onclick="closeSell()">X</button>
+      <h2>Sell USD</h2>
+      <div class="field">
+        <label>Exchange</label>
+        <select id="sellExchange" onchange="updateSellUid()">
+          <option value="Binance">Binance</option>
+          <option value="OKX">OKX</option>
+          <option value="Bybit">Bybit</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Exchange UID (auto)</label>
+        <input type="text" id="sellUid" readonly>
+      </div>
+      <div class="field">
+        <label>Amount in USD</label>
+        <input type="number" id="sellUsd" placeholder="Enter amount">
+      </div>
+      <div class="field">
+        <label>Your MPESA Number</label>
+        <input type="text" id="sellMpesa" placeholder="07xxxxxxxx">
+      </div>
+      <div class="field">
+        <label>Name Registered</label>
+        <input type="text" id="sellName" placeholder="Full Name">
+      </div>
+      <div class="summary" id="sellSummary" style="display:none;"></div>
+      <button class="btn" onclick="shareSell()">Share on WhatsApp</button>
+    </div>
+  </div>
+
+<script>
+  // Navigation
+  function showSection(id){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // Rate logic
+  function getRates(amount){
+    if(amount <= 12) return {buy:133, sell:123};
+    if(amount <= 23) return {buy:131, sell:125};
+    return {buy:131, sell:127};
+  }
+
+  // Buy Modal
+  function openBuy(){document.getElementById('buyModal').style.display='flex';}
+  function closeBuy(){document.getElementById('buyModal').style.display='none';}
+  document.getElementById('buyUsd').addEventListener('input', ()=>{
+    const usd = +document.getElementById('buyUsd').value;
+    if(usd>0){
+      const rate = getRates(usd).buy;
+      const kes = usd*rate;
+      document.getElementById('buySummary').style.display='block';
+      document.getElementById('buySummary').innerHTML =
+        `<p>Amount: $${usd}</p><p>Pay: KES ${kes}</p><p>Pay to: 0759354842</p>`;
+    } else {document.getElementById('buySummary').style.display='none';}
+  });
+
+  function shareBuy(){
+    const ex = document.getElementById('buyExchange').value;
+    const uid = document.getElementById('buyUid').value;
+    const usd = +document.getElementById('buyUsd').value;
+    const rate = getRates(usd).buy;
+    const kes = usd*rate;
+    const msg = `Exchange: ${ex}%0AUID: ${uid}%0AAmount (USD): ${usd}%0AAmount Paid (KES): ${kes}%0AI have paid the amount to 0759354842, kindly send USD to my exchange.`;
+    window.open(`https://wa.me/254106353244?text=${msg}`,'_blank');
+  }
+
+  // Sell Modal
+  const SELL_IDS = {Binance:"761945402",OKX:"483357627414418340",Bybit:"519058135"};
+  function openSell(){document.getElementById('sellModal').style.display='flex';updateSellUid();}
+  function closeSell(){document.getElementById('sellModal').style.display='none';}
+  function updateSellUid(){
+    const ex = document.getElementById('sellExchange').value;
+    document.getElementById('sellUid').value = SELL_IDS[ex];
+  }
+  document.getElementById('sellUsd').addEventListener('input', ()=>{
+    const usd = +document.getElementById('sellUsd').value;
+    if(usd>0){
+      const rate = getRates(usd).sell;
+      const kes = usd*rate;
+      document.getElementById('sellSummary').style.display='block';
+      document.getElementById('sellSummary').innerHTML =
+        `<p>Amount: $${usd}</p><p>You will receive: KES ${kes}</p>`;
+    } else {document.getElementById('sellSummary').style.display='none';}
+  });
+
+  function shareSell(){
+    const ex = document.getElementById('sellExchange').value;
+    const uid = document.getElementById('sellUid').value;
+    const usd = +document.getElementById('sellUsd').value;
+    const rate = getRates(usd).sell;
+    const kes = usd*rate;
+    const mpesa = document.getElementById('sellMpesa').value;
+    const name = document.getElementById('sellName').value;
+    const msg = `Exchange: ${ex}%0AI have paid ${usd} USD to the exchange UID ${uid}.%0APlease send me ${kes} KES to M-Pesa ${mpesa} registered to ${name}.`;
+    window.open(`https://wa.me/254106353244?text=${msg}`,'_blank');
+  }
+</script>
+</body>
+</html>
